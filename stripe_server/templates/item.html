@@ -23,10 +23,13 @@
     <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
+    <p id="payment-error" style="color: red; display: none;"></p>
     <h1>{{ item.name }}</h1>
     <p>{{ item.description }}</p>
     <p class="price">Цена: {{ item.full_price }} {{ item.currency|upper }}</p>
     <button id="buy-button">Купить</button>
+    <a href="{% url 'list-items' %}" class="button">Вернуть к списку товаров</a>
+    <a href="{% url 'buy-intent-html' item.id %}" class="button">Оплатить с помощью Stripe Intent</a>
     <form method="post" action="{% url 'add-to-order' item_id=item.id %}">
         {% csrf_token %}
         <button type="submit" class="button">Добавить в корзину</button>
@@ -34,10 +37,16 @@
     <script type="text/javascript">
         var stripe = Stripe('{{ STRIPE_PUBLIC_KEY }}');
         var buyButton = document.getElementById('buy-button');
+        var errorElement = document.getElementById('payment-error');
         buyButton.addEventListener('click', function() {
+            errorElement.style.display = 'none';
             fetch('/buy/{{ item.id }}/', { method: 'GET' })
                 .then(response => response.json())
-                .then(session => stripe.redirectToCheckout({ sessionId: session.id }));
+                .then(session => stripe.redirectToCheckout({ sessionId: session.id }))
+                .catch(function(error) {
+                    errorElement.textContent = 'Ошибка оплаты. Попробуйте позже.';
+                    errorElement.style.display = 'block';
+                });
         });
     </script>
 </body>

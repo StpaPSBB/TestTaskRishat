@@ -224,7 +224,45 @@ class BuyAPIView(APIView):
             return Response({'id': checkout_session.id})
         except Exception as e:
             return Response({'error': str(e)}, status=500)
+
+class BuyIntentAPIView(APIView):
+    """
+    Создает платежное намерение для покупки товара по его ID.
+    Возвращает client_secret платежного намерения, который используется для подтверждения оплаты на клиенте.
+    Если товар не найден, возвращает 404 ошибку.
+    Если возникает ошибка при создании платежного намерения, возвращает сообщение об ошибке.
+    """
+    permission_classes=[AllowAny]
+    renderer_classes=[JSONRenderer]
+    def get(self, request, item_id):
+        item = get_object_or_404(Item, pk=item_id)
+        try:
+            stripe.api_key = settings.STRIPE_KEYS[item.currency]['secret']
+            payment_intent = stripe.PaymentIntent.create(
+                amount=item.price,
+                currency=item.currency,
+                automatic_payment_methods={'enabled': True},
+            )
+            return Response({
+                             'clientSecret': payment_intent.client_secret,
+                             'STRIPE_PUBLIC_KEY': settings.STRIPE_KEYS[item.currency]['public']})
+        except Exception as e:
+            return Response({'error': str(e)}, status=500) 
         
+class BuyIntentTemplateAPIView(APIView):
+    """
+    Возвращает HTML-шаблон для страницы оплаты с использованием платежного намерения.
+    Используется для отображения формы оплаты на клиенте.
+    """
+    renderer_classes = [TemplateHTMLRenderer]
+    permission_classes = [AllowAny]
+    template_name = 'buy_intend.html'
+
+    def get(self, request, item_id):
+        item = get_object_or_404(Item, pk=item_id)
+        return Response({'item': item,
+                         'STRIPE_PUBLIC_KEY': settings.STRIPE_KEYS[item.currency]['public']})
+
 class BuyOrderAPIView(APIView):
     """
     Создает сессию Stripe Checkout для покупки текущего заказа(корзины).

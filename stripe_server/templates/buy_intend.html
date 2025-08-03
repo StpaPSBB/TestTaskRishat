@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Оплата товара</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .price {
+            font-weight: bold;
+            color: #06d232ff;
+        }
+        .button, button, .submit {
+            display: inline-block;
+            padding: 8px 12px;
+            background: #f0f0f0;
+            color: black;
+            text-decoration: none;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Оплата товара</h1>
+    
+    <div class="product-info">
+        <h2>{{ item.name }}</h2>
+        <p>{{ item.description }}</p>
+        <p><strong>Цена:</strong> {{ item.full_price|floatformat:2 }} {{ item.currency|upper }}</p>
+    </div>
+    
+    <form id="payment-form">
+        <label for="card-element">Карта</label>
+        <div id="card-element"></div>
+        <div id="card-errors" role="alert"></div>
+        <button id="submit" type="submit">Оплатить</button>
+    </form>
+    
+    <script>
+        const stripe = Stripe('{{ STRIPE_PUBLIC_KEY }}');
+        const elements = stripe.elements();
+        const cardElement = elements.create('card');
+        cardElement.mount('#card-element');
+        document.getElementById('payment-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const button = document.getElementById('submit');
+            button.disabled = true;
+            const response = await fetch("{% url 'buy-intent' item.id %}", { method: 'GET' });
+            const data = await response.json();
+            const {error} = await stripe.confirmCardPayment(data.clientSecret, {
+                payment_method: {
+                    card: cardElement
+                }
+            });
+            if (error) {
+                document.getElementById('card-errors').textContent = 'Ошибка оплаты. Проверьте данные карты.';
+            } else {
+                window.location.href = '/success/';
+            }
+        });
+    </script>
+</body>
+</html>
