@@ -85,6 +85,8 @@ docker-compose exec web python manage.py createsuperuser
 | `/add_tax/`                | Применение налога по имени                        |
 | `/clear_order/`            | Очистка корзины                                   |
 | `/admin/`                  | Django админ-панель                               |
+| `/buy-intent-html/<item_id>/`        | Страница оплаты товара через Stripe Payment Intent|
+| `/buy-intent/<item_id>/` | API для создания Stripe Payment Intent        |
 
 ## Stripe тестовые карты
 
