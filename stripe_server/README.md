@@ -34,6 +34,9 @@ POSTGRES_PORT=5432
 SECRET_KEY='your_django_secret_key'
 DEBUG=True
 ALLOWED_HOSTS=*
+DJANGO_SUPERUSER_USERNAME=admin
+DJANGO_SUPERUSER_EMAIL=admin@example.com
+DJANGO_SUPERUSER_PASSWORD=your_strong_password
 
 # Database
 DB_ENGINE=django.db.backends.postgresql
