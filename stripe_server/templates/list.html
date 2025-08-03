@@ -29,7 +29,6 @@
         {% for item in object_list %}
         <li>
             <h2>{{ item.name }}</h2>
-            <p>{{ item.description }}</p>
             <p class="price">Цена: {{ item.full_price }} {{ item.currency|upper }}</p>
             <a href="{% url 'item' item.id %}" class="button">Подробнее</a>
         </li>
