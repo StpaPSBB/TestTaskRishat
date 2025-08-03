@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Список товаров</title>
+    <style>
+        body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+            }
+            .price {
+                font-weight: bold;
+                color: #06d232ff;
+            }
+            .button {
+                display: inline-block;
+                padding: 8px 12px;
+                background: #f0f0f0;
+                color: black;
+                text-decoration: none;
+                font-size: 14px;
+            }    </style>
+</head>
+<body>
+    <h1>Доступные товары</h1>
+    {%if "order_id" in request.session%}
+        <a href={%url "order"%} class="button">Корзина</a>
+    {%endif%}
+    <ul>
+        {% for item in object_list %}
+        <li>
+            <h2>{{ item.name }}</h2>
+            <p>{{ item.description }}</p>
+            <p class="price">Цена: {{ item.full_price }} {{ item.currency|upper }}</p>
+            <a href="{% url 'item' item.id %}" class="button">Подробнее</a>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

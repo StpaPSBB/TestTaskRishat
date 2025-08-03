@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Добавление товара в корзину</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 8px 12px;
+            background: #f0f0f0;
+            color: black;
+            text-decoration: none;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <p>{{ message }}</p>
+    <p>{{ error }}</p>
+    <a href="{% url 'list-items' %}" class="button">Вернуться к списку товаров</a>
+    <a href="{% url 'order' %}" class="button">Перейти в корзину</a>
+</body>
+</html>

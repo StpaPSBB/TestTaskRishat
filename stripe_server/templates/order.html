@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Корзина</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .price {
+            font-weight: bold;
+            color: #06d232ff;
+        }
+        .button, button {
+            display: inline-block;
+            padding: 8px 12px;
+            background: #f0f0f0;
+            color: black;
+            text-decoration: none;
+            font-size: 14px;
+        }
+    </style>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <h1>Корзина</h1>
+    <ul>
+        {% for item in order.items %}
+        <li>
+            <h2>{{ item.item.name }}</h2>
+            <p>Количество: {{ item.quantity }}</p>
+            <p class="price">Общая цена: {{ item.full_quantity_price }} {{ item.item.currency|upper }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+    <p class="price">Стоимость корзины: {{ order.total_full_price }} {{ order.items.0.item.currency|upper }}</p>
+    <button id="buy-order-button">Купить</button>
+    <form method="post" action="{% url 'clear-order' %}">
+        {% csrf_token %}
+        <button type="submit" class="button">Очистить корзину</button>
+    </form>
+    <a href={% url "add-discount" %} class="button">Добавить скидку</a>
+    <a href={% url "add-tax" %} class="button">Добавить налог</a>
+    <a href={% url "list-items" %} class="button">Вернуться к списку товаров</a>
+    <script>
+        var stripe = Stripe('{{ STRIPE_PUBLIC_KEY }}');
+        var buyOrderButton = document.getElementById('buy-order-button');
+        buyOrderButton.addEventListener('click', function() {
+            fetch('/buy_order/', {method: 'GET'})
+                .then(response => response.json())
+                .then(session => stripe.redirectToCheckout({ sessionId: session.id }));
+        });
+    </script>
+</body>
+</html>

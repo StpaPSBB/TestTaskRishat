@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Купить {{ item.name }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .price {
+            font-weight: bold;
+            color: #06d232ff;
+        }
+        .button, button {
+            display: inline-block;
+            padding: 8px 12px;
+            background: #f0f0f0;
+            color: black;
+            text-decoration: none;
+            font-size: 14px;
+        }
+    </style>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <h1>{{ item.name }}</h1>
+    <p>{{ item.description }}</p>
+    <p class="price">Цена: {{ item.full_price }} {{ item.currency|upper }}</p>
+    <button id="buy-button">Купить</button>
+    <form method="post" action="{% url 'add-to-order' item_id=item.id %}">
+        {% csrf_token %}
+        <button type="submit" class="button">Добавить в корзину</button>
+    </form>
+    <script type="text/javascript">
+        var stripe = Stripe('{{ STRIPE_PUBLIC_KEY }}');
+        var buyButton = document.getElementById('buy-button');
+        buyButton.addEventListener('click', function() {
+            fetch('/buy/{{ item.id }}/', { method: 'GET' })
+                .then(response => response.json())
+                .then(session => stripe.redirectToCheckout({ sessionId: session.id }));
+        });
+    </script>
+</body>
+</html>
